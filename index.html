@@ -204,21 +204,20 @@
             <a href="ver-datos.html" class="view-data-btn" target="_blank">📋 Ver Tabla de Datos (acceso restringido)</a>
         </div>
     </div>
-
+    
     <script>
-    // Reemplaza ESTA URL con la que copiaste de Google Apps Script
+    // ¡IMPORTANTE! Pon AQUÍ tu URL real de Google Apps Script
     const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzIbDaySlLjebdp8VLYYx1RhxFIQc25y82_TNgR7PiHDdmvkI5rNlZaatOHejVVmLn/exec';
 
     document.getElementById('reportForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Mostrar mensaje de "Enviando..."
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Enviando...';
         submitBtn.disabled = true;
         
-        // Recopilar datos del formulario
+        // Recopilar datos
         const formData = {
             reportante: document.getElementById('reportante').value,
             cuenta: document.getElementById('cuenta').value,
@@ -230,40 +229,68 @@
             timestamp: new Date().toLocaleString()
         };
 
+        console.log('Enviando datos:', formData); // Para verificar
+
         try {
-            // Enviar datos a Google Sheets
-            const response = await fetch(GOOGLE_SHEETS_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Importante para Google Sheets
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+            // Usando JSONP como alternativa (más compatible)
+            const callbackName = 'callback' + Date.now();
+            
+            // Crear un script dinámico
+            const script = document.createElement('script');
+            const url = new URL(GOOGLE_SHEETS_URL);
+            url.searchParams.set('datos', JSON.stringify(formData));
+            url.searchParams.set('callback', callbackName);
+            
+            // Promesa para manejar la respuesta
+            const jsonpPromise = new Promise((resolve, reject) => {
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(data);
+                };
+                
+                script.onerror = function(error) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    reject(error);
+                };
+                
+                script.src = url.toString();
+                document.body.appendChild(script);
+                
+                // Timeout por si acaso
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        reject(new Error('Timeout'));
+                    }
+                }, 10000);
             });
             
-            // Mostrar mensaje de éxito
+            await jsonpPromise;
+            
+            // Mostrar éxito
             const successMsg = document.getElementById('successMessage');
             successMsg.style.display = 'block';
-            successMsg.textContent = '✅ ¡Movimiento registrado con éxito en Google Sheets!';
+            successMsg.textContent = '✅ ¡Movimiento registrado con éxito!';
             
             // Limpiar formulario
             document.getElementById('reportForm').reset();
             document.getElementById('date').value = new Date().toISOString().split('T')[0];
             
-            // Ocultar mensaje después de 3 segundos
             setTimeout(() => {
                 successMsg.style.display = 'none';
             }, 3000);
 
         } catch (error) {
-            alert('Error al registrar el movimiento. Por favor intenta de nuevo.');
-            console.error('Error:', error);
+            console.error('Error completo:', error);
+            alert('Error al registrar: ' + error.message);
         } finally {
-            // Restaurar botón
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
     });
-    </script>
+</script>
 </body>
 </html>
