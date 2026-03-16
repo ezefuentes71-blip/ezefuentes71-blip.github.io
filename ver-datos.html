@@ -338,9 +338,7 @@
     </div>
 
     <script>
-    // Reemplaza con TU URL de Google Sheets
     const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzIbDaySlLjebdp8VLYYx1RhxFIQc25y82_TNgR7PiHDdmvkI5rNlZaatOHejVVmLn/exec';
-    
     let datosReportes = [];
 
     async function cargarDatos() {
@@ -348,18 +346,19 @@
             const response = await fetch(GOOGLE_SHEETS_URL);
             const data = await response.json();
             
-            // Si hay error, mostrar mensaje
             if (data.error) {
-                console.error('Error:', data.error);
-                document.getElementById('tableBody').innerHTML = 
-                    '<tr><td colspan="8" style="text-align: center; padding: 40px;">Error al cargar datos: ' + data.error + '</td></tr>';
-                return;
+                throw new Error(data.error);
             }
             
-            // Convertir montos a números
             datosReportes = data.map(item => ({
-                ...item,
-                monto: parseFloat(item.Monto) || 0
+                fecha: item.Fecha,
+                reportante: item.Reportante,
+                cuenta: item.Cuenta,
+                tipo: item.Tipo,
+                monto: parseFloat(item.Monto) || 0,
+                descripcion: item['Descripción'],
+                metodoPago: item['Método de Pago'],
+                timestamp: item.Timestamp
             }));
             
             actualizarTabla(datosReportes);
@@ -367,12 +366,14 @@
             actualizarResumenCuentas(datosReportes);
             
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error cargando datos:', error);
             document.getElementById('tableBody').innerHTML = 
-                '<tr><td colspan="8" style="text-align: center; padding: 40px;">Error al conectar con Google Sheets</td></tr>';
+                '<tr><td colspan="8" style="text-align: center; padding: 40px;">' +
+                'Error al cargar datos. Asegúrate de que Google Sheets esté configurado correctamente.<br>' +
+                'Detalles: ' + error.message + 
+                '</td></tr>';
         }
     }
-
         function cargarDatos() {
             actualizarTabla(datosReportes);
             actualizarEstadisticas(datosReportes);
