@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Movimientos - Cuentas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4a5568;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: auto;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .view-data-btn {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .view-data-btn:hover {
+            background: #38a169;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Registro de Movimientos</h1>
+            <p>Sistema de reportes de compras y recepción de dinero</p>
+        </div>
+
+        <div class="form-section">
+            <form id="reportForm">
+                <div class="form-group">
+                    <label for="reportante">Nombre de quien reporta *</label>
+                    <input type="text" id="reportante" name="reportante" required placeholder="Ej: Juan Pérez">
+                </div>
+
+                <div class="form-group">
+                    <label for="cuenta">Seleccionar Cuenta *</label>
+                    <select id="cuenta" name="cuenta" required>
+                        <option value="">-- Selecciona una cuenta --</option>
+                        <option value="GUILLERMO-C">GUILLERMO-C</option>
+                        <option value="MONICA-C">MONICA-C</option>
+                        <option value="EZEQUIEL-C">EZEQUIEL-C</option>
+                        <option value="MERCADOPAGO-CR">MERCADOPAGO-CR</option>
+                        <option value="BBVA-C">BBVA-C</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Fecha *</label>
+                    <input type="date" id="date" name="date" required value="<?php echo date('Y-m-d'); ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Movimiento *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="tipoCompra" name="tipo" value="Compra" checked>
+                            <label for="tipoCompra">💰 Compra</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="tipoRecepcion" name="tipo" value="Recepción de Dinero">
+                            <label for="tipoRecepcion">💵 Recepción de Dinero</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Monto ($) *</label>
+                    <input type="number" id="amount" name="amount" required min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descripción *</label>
+                    <textarea id="description" name="description" required rows="3" placeholder="Detalla el concepto..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="metodoPago">Método de Pago</label>
+                    <select id="metodoPago" name="metodoPago">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Transferencia">Transferencia</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+
+                <button type="submit">📝 Registrar Movimiento</button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                ✅ ¡Movimiento registrado con éxito!
+            </div>
+
+            <a href="ver-datos.html" class="view-data-btn" target="_blank">📋 Ver Tabla de Datos (acceso restringido)</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Recopilar datos del formulario
+            const formData = {
+                reportante: document.getElementById('reportante').value,
+                cuenta: document.getElementById('cuenta').value,
+                date: document.getElementById('date').value,
+                tipo: document.querySelector('input[name="tipo"]:checked').value,
+                amount: document.getElementById('amount').value,
+                description: document.getElementById('description').value,
+                metodoPago: document.getElementById('metodoPago').value,
+                timestamp: new Date().toLocaleString()
+            };
+
+            try {
+                // Simulación de envío exitoso
+                console.log('Datos a enviar:', formData);
+                
+                // Mostrar mensaje de éxito
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+                successMsg.textContent = '✅ ¡Movimiento registrado con éxito!';
+                
+                // Limpiar formulario
+                document.getElementById('reportForm').reset();
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                
+                // Ocultar mensaje después de 3 segundos
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                alert('Error al registrar el movimiento. Por favor intenta de nuevo.');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
