@@ -206,6 +206,20 @@
     </div>
     
     <script>
+        // Esto va DENTRO de tu <script> existente, al principio
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer la fecha actual en el campo de fecha
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.value = formattedDate;
+    }
+});
     // ¡IMPORTANTE! Pon AQUÍ tu URL real de Google Apps Script
     const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzIbDaySlLjebdp8VLYYx1RhxFIQc25y82_TNgR7PiHDdmvkI5rNlZaatOHejVVmLn/exec';
 
