@@ -206,44 +206,64 @@
     </div>
 
     <script>
-        document.getElementById('reportForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+    // Reemplaza ESTA URL con la que copiaste de Google Apps Script
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzIbDaySlLjebdp8VLYYx1RhxFIQc25y82_TNgR7PiHDdmvkI5rNlZaatOHejVVmLn/exec';
+
+    document.getElementById('reportForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Mostrar mensaje de "Enviando..."
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Enviando...';
+        submitBtn.disabled = true;
+        
+        // Recopilar datos del formulario
+        const formData = {
+            reportante: document.getElementById('reportante').value,
+            cuenta: document.getElementById('cuenta').value,
+            date: document.getElementById('date').value,
+            tipo: document.querySelector('input[name="tipo"]:checked').value,
+            amount: document.getElementById('amount').value,
+            description: document.getElementById('description').value,
+            metodoPago: document.getElementById('metodoPago').value,
+            timestamp: new Date().toLocaleString()
+        };
+
+        try {
+            // Enviar datos a Google Sheets
+            const response = await fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Importante para Google Sheets
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
             
-            // Recopilar datos del formulario
-            const formData = {
-                reportante: document.getElementById('reportante').value,
-                cuenta: document.getElementById('cuenta').value,
-                date: document.getElementById('date').value,
-                tipo: document.querySelector('input[name="tipo"]:checked').value,
-                amount: document.getElementById('amount').value,
-                description: document.getElementById('description').value,
-                metodoPago: document.getElementById('metodoPago').value,
-                timestamp: new Date().toLocaleString()
-            };
+            // Mostrar mensaje de éxito
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+            successMsg.textContent = '✅ ¡Movimiento registrado con éxito en Google Sheets!';
+            
+            // Limpiar formulario
+            document.getElementById('reportForm').reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // Ocultar mensaje después de 3 segundos
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
 
-            try {
-                // Simulación de envío exitoso
-                console.log('Datos a enviar:', formData);
-                
-                // Mostrar mensaje de éxito
-                const successMsg = document.getElementById('successMessage');
-                successMsg.style.display = 'block';
-                successMsg.textContent = '✅ ¡Movimiento registrado con éxito!';
-                
-                // Limpiar formulario
-                document.getElementById('reportForm').reset();
-                document.getElementById('date').value = new Date().toISOString().split('T')[0];
-                
-                // Ocultar mensaje después de 3 segundos
-                setTimeout(() => {
-                    successMsg.style.display = 'none';
-                }, 3000);
-
-            } catch (error) {
-                alert('Error al registrar el movimiento. Por favor intenta de nuevo.');
-                console.error('Error:', error);
-            }
-        });
+        } catch (error) {
+            alert('Error al registrar el movimiento. Por favor intenta de nuevo.');
+            console.error('Error:', error);
+        } finally {
+            // Restaurar botón
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
     </script>
 </body>
 </html>
