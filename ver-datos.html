@@ -338,59 +338,40 @@
     </div>
 
     <script>
-        // Datos de ejemplo con las nuevas cuentas
-        let datosReportes = [
-            {
-                fecha: '2024-01-15',
-                reportante: 'Juan Pérez',
-                cuenta: 'GUILLERMO-C',
-                tipo: 'Compra',
-                monto: 1500.50,
-                descripcion: 'Compra de materiales de oficina',
-                metodoPago: 'Tarjeta',
-                timestamp: '2024-01-15 10:30:00'
-            },
-            {
-                fecha: '2024-01-15',
-                reportante: 'María García',
-                cuenta: 'MERCADOPAGO-CR',
-                tipo: 'Recepción de Dinero',
-                monto: 5000.00,
-                descripcion: 'Pago de cliente XYZ',
-                metodoPago: 'Transferencia',
-                timestamp: '2024-01-15 11:45:00'
-            },
-            {
-                fecha: '2024-01-14',
-                reportante: 'Carlos López',
-                cuenta: 'BBVA-C',
-                tipo: 'Compra',
-                monto: 3200.00,
-                descripcion: 'Compra de equipo de cómputo',
-                metodoPago: 'Efectivo',
-                timestamp: '2024-01-14 15:20:00'
-            },
-            {
-                fecha: '2024-01-14',
-                reportante: 'Ana Martínez',
-                cuenta: 'MONICA-C',
-                tipo: 'Recepción de Dinero',
-                monto: 2500.00,
-                descripcion: 'Pago de servicios',
-                metodoPago: 'Transferencia',
-                timestamp: '2024-01-14 09:15:00'
-            },
-            {
-                fecha: '2024-01-13',
-                reportante: 'Roberto Sánchez',
-                cuenta: 'EZEQUIEL-C',
-                tipo: 'Compra',
-                monto: 800.00,
-                descripcion: 'Compra de insumos',
-                metodoPago: 'Efectivo',
-                timestamp: '2024-01-13 14:30:00'
+    // Reemplaza con TU URL de Google Sheets
+    const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzzIbDaySlLjebdp8VLYYx1RhxFIQc25y82_TNgR7PiHDdmvkI5rNlZaatOHejVVmLn/exec';
+    
+    let datosReportes = [];
+
+    async function cargarDatos() {
+        try {
+            const response = await fetch(GOOGLE_SHEETS_URL);
+            const data = await response.json();
+            
+            // Si hay error, mostrar mensaje
+            if (data.error) {
+                console.error('Error:', data.error);
+                document.getElementById('tableBody').innerHTML = 
+                    '<tr><td colspan="8" style="text-align: center; padding: 40px;">Error al cargar datos: ' + data.error + '</td></tr>';
+                return;
             }
-        ];
+            
+            // Convertir montos a números
+            datosReportes = data.map(item => ({
+                ...item,
+                monto: parseFloat(item.Monto) || 0
+            }));
+            
+            actualizarTabla(datosReportes);
+            actualizarEstadisticas(datosReportes);
+            actualizarResumenCuentas(datosReportes);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('tableBody').innerHTML = 
+                '<tr><td colspan="8" style="text-align: center; padding: 40px;">Error al conectar con Google Sheets</td></tr>';
+        }
+    }
 
         function cargarDatos() {
             actualizarTabla(datosReportes);
